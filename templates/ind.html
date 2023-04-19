@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document Details</title>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-color: #2196f3;
+            color: #fff;
+        }
+
+        main {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .image-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        a {
+            color: #2196f3;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Document Details</h1>
+    <main>
+        <h2 id="doc-title"></h2>
+        <div class="image-container">
+            <img id="doc-image" src="">
+        </div>
+        <b><label for="doc-description">Description:</label></b>
+        <p id="doc-description"></p>
+        <b><label for="doc-city">City:</label></b>
+        <p id="doc-city">City</p>
+        <b><label for="doc-country">Country:</label></b>
+        <p id="doc-country">Country</p>
+        <b><label for="occupation">Occupation:</label></b>
+        <p id="occupation">Occupation</p>
+        <!-- <p id="comment">Comment</p> -->
+        <!-- <p>Comments Added : </p>
+        {% for c in comment %}
+            <p value="{{ comment }}">{{ c }}</p>
+        {% endfor %} -->
+
+        <img src="data:image/jpeg;base64,{{ imga }}" alt="My Image">
+
+        <form id="comment-form">
+            <label for="comment">Leave a comment:</label><br>
+            <textarea id="comment" name="comment" rows="4" cols="50"></textarea><br>
+            <input type="submit" value="Submit">
+        </form>
+
+        <p id="com1-comments2">Comments:</p>
+        <ul id="comment-list"></ul>
+
+    </main>
+    <script>
+        const titleElem = document.getElementById('doc-title');
+        const imageElem = document.getElementById('doc-image');
+        const descElem = document.getElementById('doc-description');
+        const city = document.getElementById('doc-city');
+        const country = document.getElementById('doc-country');
+        const occupation = document.getElementById('occupation');
+        titleElem.textContent = "{{ title }}";
+        imageElem.src = "{{ Image }}";
+        descElem.textContent = "{{ description }}";
+        city.textContent = "{{ city }}";
+        country.textContent = "{{ country }}";
+        occupation.textContent = "{{ occupation }}"
+        // imga.textContent = "{{imga}}"
+
+        const comments2 = document.getElementById('com1-comments2');
+        const commentForm = document.getElementById('comment-form');
+        const commentList = document.getElementById('comment-list');
+        const id = document.getElementById('id');
+        comments2.textContent = "{{ comments }}";
+
+        // Add event listener to form
+        commentForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent form submission
+
+            // Get comment input value
+            const commentInput = document.getElementById('comment');
+            const commentText = commentInput.value;
+
+            // Create comment object
+            const commentObj = {
+                "_id": "{{ id }}",
+                "comment": commentText
+            };
+
+            // Send comment to server
+            fetch('/add_comment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(commentObj)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Add comment to list
+                const newComment = document.createElement('li');
+                newComment.textContent = data.comment;
+                commentList.appendChild(newComment);
+
+                // Clear comment input field
+                commentInput.value = '';
+            })
+            .catch(error => console.error(error));
+        });
+
+        // Get existing comments for document from server
+        fetch(`/comments/{{id}}`)
+        .then(response => response.json())
+        .then(data => {
+            const comments = data.comment; // extract the comment property from the response object
+            console.log(comments);
+            // Add comments to list
+            comments.forEach(comment => {
+                const newComment = document.createElement('li');
+                newComment.textContent = comment;
+                commentList.appendChild(newComment);
+            });
+        });
+
+    </script>
+</body>
+</html>
